@@ -6,9 +6,9 @@ $password = '';
 
 function authenticate($url, $data) {
   $params = array('http' => array(
-              'method' => 'POST',
-              'content' => http_build_query($data)
-            ));
+    'method' => 'POST',
+    'content' => http_build_query($data)
+  ));
   $ctx = stream_context_create($params);
   $fp = @fopen($url, 'rb', false, $ctx);
   if (!$fp) {
@@ -52,7 +52,7 @@ function access_API($method, $cookie, $resource, $content=False) {
 
 
 function GET($cookie, $url) {
-    return access_API('GET', $cookie, $url);
+  return access_API('GET', $cookie, $url);
 }
 
 function POST($cookie, $url, $data) {
