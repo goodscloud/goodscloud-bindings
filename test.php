@@ -1,0 +1,84 @@
+<?php
+$server = 'http://test.goodscloud.net';
+$email = '';
+$password = '';
+
+
+function authenticate($url, $data) {
+  $params = array('http' => array(
+              'method' => 'POST',
+              'content' => http_build_query($data)
+            ));
+  $ctx = stream_context_create($params);
+  $fp = @fopen($url, 'rb', false, $ctx);
+  if (!$fp) {
+    throw new Exception("Problem with $url, $php_errormsg");
+  }
+  $meta = @stream_get_meta_data($fp);
+  foreach ($meta['wrapper_data'] as $thing) {
+    if (strpos($thing, 'Set-Cookie: ', 0) === 0) {
+      $cookie = explode(';', substr($thing, 12));
+      $cookie = $cookie[0];
+    }
+  }
+  $response = @stream_get_contents($fp);
+  if ($response === false) {
+    throw new Exception("Problem reading data from $url, $php_errormsg");
+  }
+  return array('cookie'=>$cookie, 'response'=>json_decode($response));
+}
+
+function GET($cookie, $url) {
+  // DELETE should work the same as this
+  $params = array('http' => array(
+    'method' => 'GET',
+    'header' => 'Cookie: ' . $cookie,
+  ));
+  $ctx = stream_context_create($params);
+  $fp = @fopen($url, 'rb', false, $ctx);
+  if (!$fp) {
+    throw new Exception("Problem with $url, $php_errormsg");
+  }
+  $response = @stream_get_contents($fp);
+  if ($response === false) {
+    throw new Exception("Problem reading data from $url, $php_errormsg");
+  }
+  return json_decode($response);
+}
+
+function PUT($cookie, $url, $data) {
+  // POST and PATCH should work the same as this
+  $params = array('http' => array(
+    'method' => 'PUT',
+    'header' => array('Cookie: ' . $cookie, 'Content-type: application/json'), // when PHP is compiled --with-curlwrappers
+    // 'header' => 'Cookie: ' . $cookie . '\r\nContent-type: application/json\r\n', // when PHP is not compiled --with-curlwrappers
+    'content'=> json_encode($data),
+  ));
+  $ctx = stream_context_create($params);
+  $fp = @fopen($url, 'rb', false, $ctx);
+  if (!$fp) {
+    throw new Exception("Problem with $url, $php_errormsg");
+  }
+  $response = @stream_get_contents($fp);
+  if ($response === false) {
+    throw new Exception("Problem reading data from $url, $php_errormsg");
+  }
+  return json_decode($response);
+}
+
+// Authenticate
+$auth = authenticate($server . '/session', array('email'=>$email, 'password'=>$password));
+$cookie = $auth['cookie'];
+
+// Get list of companies (only one)
+$company_list = GET($cookie, $server . '/api/internal/company');
+print_r($company_list);
+
+// Change the label on the first (and only) company
+$response = PUT($cookie, $server . '/api/internal/company/' . $company_list->objects[0]->id, array('label'=>$company_list->objects[0]->label . " (modified)"));
+print_r($response);
+
+// Verify that the label was changed
+$company = GET($cookie, $server . '/api/internal/company/' . $company_list->objects[0]->id);
+print_r($company);
+?>
