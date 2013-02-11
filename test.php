@@ -29,7 +29,7 @@ function authenticate($url, $data) {
 }
 
 
-function access_API($method, $cookie, $resource, $content) {
+function access_API($method, $cookie, $resource, $content=False) {
   $params = array('http' => array(
     'method'=>$method,
     'header'=>array('Cookie: ' . $cookie, 'Content-type: application/json'), // when PHP is compiled --with-curlwrappers
@@ -52,7 +52,7 @@ function access_API($method, $cookie, $resource, $content) {
 
 
 function GET($cookie, $url) {
-    return access_API('GET', $cookie, $url, '');
+    return access_API('GET', $cookie, $url);
 }
 
 function PUT($cookie, $url, $data) {
