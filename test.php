@@ -55,9 +55,18 @@ function GET($cookie, $url) {
     return access_API('GET', $cookie, $url);
 }
 
+function POST($cookie, $url, $data) {
+  return access_API('POST', $cookie, $url, $data);
+}
+
 function PUT($cookie, $url, $data) {
   return access_API('PUT', $cookie, $url, $data);
 }
+
+function DELETE($cookie, $url, $data) {
+  return access_API('DELETE', $cookie, $url);
+}
+
 
 // Authenticate
 $auth = authenticate($server . '/session', array('email'=>$email, 'password'=>$password));
