@@ -28,42 +28,35 @@ function authenticate($url, $data) {
   return array('cookie'=>$cookie, 'response'=>json_decode($response));
 }
 
-function GET($cookie, $url) {
-  // DELETE should work the same as this
+
+function access_API($method, $cookie, $resource, $content) {
   $params = array('http' => array(
-    'method' => 'GET',
-    'header' => 'Cookie: ' . $cookie,
+    'method'=>$method,
+    'header'=>array('Cookie: ' . $cookie, 'Content-type: application/json'), // when PHP is compiled --with-curlwrappers
+    // 'header' => 'Cookie: ' . $cookie . '\r\nContent-type: application/json\r\n', // when PHP is not compiled --with-curlwrappers
   ));
-  $ctx = stream_context_create($params);
-  $fp = @fopen($url, 'rb', false, $ctx);
-  if (!$fp) {
-    throw new Exception("Problem with $url, $php_errormsg");
+  if ($content) {
+    $params['http']['content'] = json_encode($content);
   }
-  $response = @stream_get_contents($fp);
-  if ($response === false) {
+  $ctx = stream_context_create($params);
+  $fp = @fopen($resource, 'rb', false, $ctx);
+  if (!$fp) {
+    throw new Exception("Problem with $resource, $php_errormsg");
+  }
+  $data = @stream_get_contents($fp);
+  if ($data === false) {
     throw new Exception("Problem reading data from $url, $php_errormsg");
   }
-  return json_decode($response);
+  return json_decode($data);
+}
+
+
+function GET($cookie, $url) {
+    return access_API('GET', $cookie, $url, '');
 }
 
 function PUT($cookie, $url, $data) {
-  // POST and PATCH should work the same as this
-  $params = array('http' => array(
-    'method' => 'PUT',
-    'header' => array('Cookie: ' . $cookie, 'Content-type: application/json'), // when PHP is compiled --with-curlwrappers
-    // 'header' => 'Cookie: ' . $cookie . '\r\nContent-type: application/json\r\n', // when PHP is not compiled --with-curlwrappers
-    'content'=> json_encode($data),
-  ));
-  $ctx = stream_context_create($params);
-  $fp = @fopen($url, 'rb', false, $ctx);
-  if (!$fp) {
-    throw new Exception("Problem with $url, $php_errormsg");
-  }
-  $response = @stream_get_contents($fp);
-  if ($response === false) {
-    throw new Exception("Problem reading data from $url, $php_errormsg");
-  }
-  return json_decode($response);
+  return access_API('PUT', $cookie, $url, $data);
 }
 
 // Authenticate
