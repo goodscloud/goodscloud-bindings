@@ -1,5 +1,5 @@
 from urllib import urlencode
-from urllib2 import urlopen
+from urllib2 import urlopen, Request
 from base64 import encodestring
 from hashlib import sha1
 import hmac
@@ -15,8 +15,9 @@ API_SERVER = "http://localhost:5000"
 
 
 def login(email, password):
-    data = (('email', email), ('password', password),)
-    session = json.loads(urlopen(API_SERVER + '/session', urlencode(data)).read())
+    headers = {"GC-Email": email, "GC-Password": password}
+    req = Request(url=API_SERVER + '/session', data="", headers=headers)
+    session = json.loads(urlopen(req).read())
     assert session['email'] == email, "Login failed"
     return session
 
