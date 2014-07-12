@@ -51,9 +51,9 @@ class Goodscloud{
         'Content-Type: application/json',
     ));
 
-    $request_params = Goodscloud::serialize_params($params);
-    if ($request_params) {
-      curl_setopt($ch, CURLOPT_URL, $host.$path."?".$request_params);
+    $param_str = Goodscloud::serialize_params($params);
+    if ($param_str) {
+      curl_setopt($ch, CURLOPT_URL, $host.$path."?".$param_str);
     } else {
       curl_setopt($ch, CURLOPT_URL, $host.$path);
     }
@@ -97,11 +97,11 @@ class Goodscloud{
           "expires" => $expires
       );
     $params = array_merge($params, $auth_params);
-    $str_params = $this::serialize_params($params);
+    $param_str = $this::serialize_params($params);
     $sign_str = implode(array(
         $method,
         $path,
-        md5($str_params),
+        md5($param_str),
         md5($data),
         $this->session->auth->app_token,
         $expires
