@@ -1,5 +1,5 @@
 <?php
-require 'demo.class.php';
+require 'goodscloud.class.php';
 $gc = new Goodscloud("http://sandbox.goodscloud.com", "me@mycompany.com", "PASSWORD");
 
 function getProduct($gc, $gtin){
