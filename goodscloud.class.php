@@ -13,11 +13,23 @@ class Goodscloud{
     $this->email = $email;
     $this->password = $password;
     $this->port = strpos($this->host, "https") == 0 ? 443 : 80;
-    $this->getSession();
+    $this->login();
   }
 
-  private function getSession(){
-    $this->session = $this::http_request_curl('POST', $this->host, $this->port, '/session', array('email'=>$this->email,'password' => $this->password));
+  private function login(){
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $this->host . '/session');
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+      "GC-Email: " . $this->email,
+      "GC-Password: " . $this->password,
+    ));
+    // Set so curl_exec returns the result instead of outputting it.
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
+    $this->session = json_decode(curl_exec($ch));
+    curl_close($ch);
     if (!isset($this->session) || $this->session->email != $this->email){
       throw new Exception("API credentials incorrect", 1);
     }
@@ -27,8 +39,11 @@ class Goodscloud{
     return $this->signed_request('GET', $uri, $params);
   }
 
-  private static function http_request_curl($method, $host, $port, $path, $params){
-    // Initialize session.
+  public function post($uri, $params, $data) {
+    return $this->signed_request('POST', $uri, $params, $data);
+  }
+
+  private static function http_request_curl($method, $host, $port, $path, $params, $data){
     $ch = curl_init();
     $request_params = '';
     foreach ($params as $k => $v) {
@@ -36,13 +51,21 @@ class Goodscloud{
     }
     $request_params = substr($request_params, 0, -1);
 
-    if ($method == "GET"){
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'Content-Type: application/json',
+    ));
+
+    if ($request_params) {
       curl_setopt($ch, CURLOPT_URL, $host.$path."?".$request_params);
-    }
-    if ($method == "POST"){
+    } else {
       curl_setopt($ch, CURLOPT_URL, $host.$path);
+    }
+
+    if ($method == "GET"){
+      ;
+    } elseif ($method == "POST"){
       curl_setopt($ch, CURLOPT_POST, 1);
-      curl_setopt($ch, CURLOPT_POSTFIELDS, $request_params);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     }
 
     // Set so curl_exec returns the result instead of outputting it.
@@ -55,7 +78,10 @@ class Goodscloud{
     return $json;
   }
 
-  private function signed_request($method, $path, $params, $post_data=""){
+  private function signed_request($method, $path, $params, $data=""){
+    if (is_array($data)) {
+      $data = json_encode($data);
+    }
     $expires = date("Y-m-d\TH:i:s\Z", time() + 60); //current time + 60 seconds
     $auth_params = array(
           "key"     => $this->session->auth->app_key,
@@ -73,7 +99,7 @@ class Goodscloud{
         $method,
         $path,
         md5($str_params),
-        md5($post_data),
+        md5($data),
         $this->session->auth->app_token,
         $expires
       ), "\n");
@@ -81,7 +107,7 @@ class Goodscloud{
     $sign = trim(base64_encode(hash_hmac("sha1", utf8_encode($sign_str), $this->session->auth->app_secret, true)), "=");
     $params = array_merge($params, array("sign" => $sign));
 
-    return $this::http_request_curl('GET', $this->host, $this->port, $path, $params);
+    return $this::http_request_curl($method, $this->host, $this->port, $path, $params, $data);
   }
 
 }
