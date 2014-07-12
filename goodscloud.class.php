@@ -47,6 +47,14 @@ class Goodscloud{
     return $this->signed_request('PUT', $uri, $params, $data);
   }
 
+  public function patch($uri, $params, $data) {
+    return $this->signed_request('PATCH', $uri, $params, $data);
+  }
+
+  public function delete($uri) {
+    return $this->signed_request('DELETE', $uri, array());
+  }
+
   private static function http_request_curl($method, $host, $port, $path, $params, $data){
     $ch = curl_init();
     $request_params = '';
@@ -71,6 +79,11 @@ class Goodscloud{
     } elseif ($method == 'PUT') {
       curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
       curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    } elseif ($method == 'PATCH') {
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    } elseif ($method == 'DELETE') {
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
     }
 
     // Set so curl_exec returns the result instead of outputting it.
