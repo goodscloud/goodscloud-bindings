@@ -32,14 +32,17 @@ class Goodscloud{
     }
   }
 
-  private static function serialize_params($params) {
+  private static function serialize_params($params, $encode=false) {
     ksort($params);
     $str_params = array();
     foreach ($params as $key => $value) {
       if (is_array($value)) {
         $value = json_encode($value);
       }
-      $str_params[] = "$key=$value";
+      if ($encode) {
+        $value = urlencode($value);
+      }
+      $str_params[] = ($key . '=' . $value);
     }
     return join('&', $str_params);
   }
@@ -50,7 +53,7 @@ class Goodscloud{
       'Content-Type: application/json',
     ));
 
-    $param_str = Goodscloud::serialize_params($params);
+    $param_str = Goodscloud::serialize_params($params, true);
     if ($param_str) {
       curl_setopt($ch, CURLOPT_URL, $host.$path."?".$param_str);
     } else {
