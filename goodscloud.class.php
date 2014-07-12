@@ -35,26 +35,6 @@ class Goodscloud{
     }
   }
 
-  public function get($uri, $params) {
-    return $this->signed_request('GET', $uri, $params);
-  }
-
-  public function post($uri, $params, $data) {
-    return $this->signed_request('POST', $uri, $params, $data);
-  }
-
-  public function put($uri, $params, $data) {
-    return $this->signed_request('PUT', $uri, $params, $data);
-  }
-
-  public function patch($uri, $params, $data) {
-    return $this->signed_request('PATCH', $uri, $params, $data);
-  }
-
-  public function delete($uri) {
-    return $this->signed_request('DELETE', $uri, array());
-  }
-
   private static function http_request_curl($method, $host, $port, $path, $params, $data){
     $ch = curl_init();
     $request_params = '';
@@ -131,6 +111,26 @@ class Goodscloud{
     $params = array_merge($params, array("sign" => $sign));
 
     return $this::http_request_curl($method, $this->host, $this->port, $path, $params, $data);
+  }
+
+  public function get($uri, $params) {
+    return $this->signed_request('GET', $uri, $params);
+  }
+
+  public function post($uri, $params, $data) {
+    return $this->signed_request('POST', $uri, $params, $data);
+  }
+
+  public function put($uri, $params, $data) {
+    return $this->signed_request('PUT', $uri, $params, $data);
+  }
+
+  public function patch($uri, $params, $data) {
+    return $this->signed_request('PATCH', $uri, $params, $data);
+  }
+
+  public function delete($uri) {
+    return $this->signed_request('DELETE', $uri, array());
   }
 
 }
