@@ -3,7 +3,6 @@ class Goodscloud{
   private $host;
   private $email;
   private $password;
-  private $port;
   private $session;
 
   public function __construct($host, $email, $password){
@@ -11,7 +10,6 @@ class Goodscloud{
     $this->host = $host;
     $this->email = $email;
     $this->password = $password;
-    $this->port = strpos($this->host, 'https') == 0 ? 443 : 80;
     $this->login();
   }
 
@@ -46,7 +44,7 @@ class Goodscloud{
     return join('&', $str_params);
   }
 
-  private static function http_request_curl($method, $host, $port, $path, $params, $data){
+  private static function http_request_curl($method, $host, $path, $params, $data){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
       'Content-Type: application/json',
@@ -111,7 +109,7 @@ class Goodscloud{
     $sign = trim(base64_encode(hash_hmac('sha1', utf8_encode($sign_str), $this->session->auth->app_secret, true)), '=');
     $params = array_merge($params, array('sign' => $sign));
 
-    return $this::http_request_curl($method, $this->host, $this->port, $path, $params, $data);
+    return $this::http_request_curl($method, $this->host, $path, $params, $data);
   }
 
   public function get($uri, $params=array()) {
