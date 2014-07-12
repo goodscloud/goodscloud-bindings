@@ -36,12 +36,11 @@ class Goodscloud{
 
   private static function serialize_params($params) {
     ksort($params);
-    $str_params = "";
+    $str_params = array();
     foreach ($params as $key => $value) {
-      $str_params .= "&$key=$value";
+      $str_params[] = "$key=$value";
     }
-    $str_params = trim($str_params, "&");
-    return $str_params;
+    return join('&', $str_params);
   }
 
   private static function http_request_curl($method, $host, $port, $path, $params, $data){
