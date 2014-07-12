@@ -43,6 +43,10 @@ class Goodscloud{
     return $this->signed_request('POST', $uri, $params, $data);
   }
 
+  public function put($uri, $params, $data) {
+    return $this->signed_request('PUT', $uri, $params, $data);
+  }
+
   private static function http_request_curl($method, $host, $port, $path, $params, $data){
     $ch = curl_init();
     $request_params = '';
@@ -61,10 +65,11 @@ class Goodscloud{
       curl_setopt($ch, CURLOPT_URL, $host.$path);
     }
 
-    if ($method == "GET"){
-      ;
-    } elseif ($method == "POST"){
+    if ($method == 'POST') {
       curl_setopt($ch, CURLOPT_POST, 1);
+      curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    } elseif ($method == 'PUT') {
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PUT');
       curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
     }
 
