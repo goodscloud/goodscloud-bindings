@@ -23,14 +23,8 @@ class Goodscloud{
     }
   }
 
-  public function getProduct($gtin){
-    $this->gtin = $gtin;
-    $query = json_encode(array("filters" => array( array("name" => "gtin", "op" => "eq", "val" => $this->gtin))));
-    $product = $this->signed_request('/api/internal/company_product', 'GET', array("q" => $query), $this->session->auth);
-    if (!isset($product) || $product->num_results < 1){
-      throw new Exception("No product with id $gtin", 1);
-    }
-    return $product;
+  public function get($uri, $params) {
+    return $this->signed_request('GET', $uri, $params);
   }
 
   private static function http_request_curl($method, $host, $port, $path, $params){
@@ -61,11 +55,11 @@ class Goodscloud{
     return $json;
   }
 
-  private function signed_request($path, $method, $params, $auth, $post_data=""){
+  private function signed_request($method, $path, $params, $post_data=""){
     $expires = date("Y-m-d\TH:i:s\Z", time() + 60); //current time + 60 seconds
     $auth_params = array(
-          "key"     => $auth->app_key,
-          "token"   => $auth->app_token,
+          "key"     => $this->session->auth->app_key,
+          "token"   => $this->session->auth->app_token,
           "expires" => $expires
       );
     $params = array_merge($params, $auth_params);
@@ -80,14 +74,14 @@ class Goodscloud{
         $path,
         md5($str_params),
         md5($post_data),
-        $auth->app_token,
+        $this->session->auth->app_token,
         $expires
       ), "\n");
 
-    $sign = trim(base64_encode(hash_hmac("sha1", utf8_encode($sign_str), $auth->app_secret, true)), "=");
+    $sign = trim(base64_encode(hash_hmac("sha1", utf8_encode($sign_str), $this->session->auth->app_secret, true)), "=");
     $params = array_merge($params, array("sign" => $sign));
 
-    return $this::http_request_curl('GET', $this->host, $this->port,  $path, $params);
+    return $this::http_request_curl('GET', $this->host, $this->port, $path, $params);
   }
 
 }
