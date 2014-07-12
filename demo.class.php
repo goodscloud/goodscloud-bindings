@@ -33,7 +33,7 @@ class Goodscloud{
     return $product;
   }
 
-  private static function http_request_curl($method,$host,$port,$path,$params){
+  private static function http_request_curl($method, $host, $port, $path, $params){
     // Initialize session.
     $ch = curl_init();
     $request_params = '';
