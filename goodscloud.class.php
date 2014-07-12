@@ -38,6 +38,9 @@ class Goodscloud{
     ksort($params);
     $str_params = array();
     foreach ($params as $key => $value) {
+      if (is_array($value)) {
+        $value = json_encode($value);
+      }
       $str_params[] = "$key=$value";
     }
     return join('&', $str_params);
