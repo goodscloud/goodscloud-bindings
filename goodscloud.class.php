@@ -11,7 +11,7 @@ class Goodscloud{
     $this->host = $host;
     $this->email = $email;
     $this->password = $password;
-    $this->port = strpos($this->host, "https") == 0 ? 443 : 80;
+    $this->port = strpos($this->host, 'https') == 0 ? 443 : 80;
     $this->login();
   }
 
@@ -20,8 +20,8 @@ class Goodscloud{
     curl_setopt($ch, CURLOPT_URL, $this->host . '/session');
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-      "GC-Email: " . $this->email,
-      "GC-Password: " . $this->password,
+      'GC-Email: ' . $this->email,
+      'GC-Password: ' . $this->password,
     ));
     // Set so curl_exec returns the result instead of outputting it.
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -93,9 +93,9 @@ class Goodscloud{
     }
     $expires = date("Y-m-d\TH:i:s\Z", time() + 60); //current time + 60 seconds
     $auth_params = array(
-          "key"     => $this->session->auth->app_key,
-          "token"   => $this->session->auth->app_token,
-          "expires" => $expires
+          'key'     => $this->session->auth->app_key,
+          'token'   => $this->session->auth->app_token,
+          'expires' => $expires
       );
     $params = array_merge($params, $auth_params);
     $param_str = $this::serialize_params($params);
@@ -108,8 +108,8 @@ class Goodscloud{
         $expires
       ), "\n");
 
-    $sign = trim(base64_encode(hash_hmac("sha1", utf8_encode($sign_str), $this->session->auth->app_secret, true)), "=");
-    $params = array_merge($params, array("sign" => $sign));
+    $sign = trim(base64_encode(hash_hmac('sha1', utf8_encode($sign_str), $this->session->auth->app_secret, true)), '=');
+    $params = array_merge($params, array('sign' => $sign));
 
     return $this::http_request_curl($method, $this->host, $this->port, $path, $params, $data);
   }
