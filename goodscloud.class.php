@@ -1,6 +1,5 @@
 <?php
 class Goodscloud{
-  private $gtin = null;
   private $host;
   private $email;
   private $password;
