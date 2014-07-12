@@ -90,10 +90,4 @@ class Goodscloud{
     return $this::http_request_curl('GET', $this->host, $this->port,  $path, $params);
   }
 
-
 }
-
-$gc = new Goodscloud("host", "user", "password");
-$product = $gc->getProduct("00845982004017");
-
-var_dump($product);
