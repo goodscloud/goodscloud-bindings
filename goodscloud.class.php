@@ -49,7 +49,7 @@ class Goodscloud{
   private static function http_request_curl($method, $host, $port, $path, $params, $data){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'Content-Type: application/json',
+      'Content-Type: application/json',
     ));
 
     $param_str = Goodscloud::serialize_params($params);
@@ -93,20 +93,20 @@ class Goodscloud{
     }
     $expires = date("Y-m-d\TH:i:s\Z", time() + 60); //current time + 60 seconds
     $auth_params = array(
-          'key'     => $this->session->auth->app_key,
-          'token'   => $this->session->auth->app_token,
-          'expires' => $expires
+      'key'     => $this->session->auth->app_key,
+      'token'   => $this->session->auth->app_token,
+      'expires' => $expires
       );
     $params = array_merge($params, $auth_params);
     $param_str = $this::serialize_params($params);
     $sign_str = implode(array(
-        $method,
-        $path,
-        md5($param_str),
-        md5($data),
-        $this->session->auth->app_token,
-        $expires
-      ), "\n");
+      $method,
+      $path,
+      md5($param_str),
+      md5($data),
+      $this->session->auth->app_token,
+      $expires
+    ), "\n");
 
     $sign = trim(base64_encode(hash_hmac('sha1', utf8_encode($sign_str), $this->session->auth->app_secret, true)), '=');
     $params = array_merge($params, array('sign' => $sign));
