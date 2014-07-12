@@ -7,7 +7,7 @@ class Goodscloud{
   private $port;
   private $session;
 
-  public function __construct($host, $email, $password){  // pass global trade item number
+  public function __construct($host, $email, $password){
     date_default_timezone_set('Europe/Berlin');
     $this->host = $host;
     $this->email = $email;
