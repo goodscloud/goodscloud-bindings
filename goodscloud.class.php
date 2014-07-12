@@ -113,7 +113,7 @@ class Goodscloud{
     return $this::http_request_curl($method, $this->host, $this->port, $path, $params, $data);
   }
 
-  public function get($uri, $params) {
+  public function get($uri, $params=array()) {
     return $this->signed_request('GET', $uri, $params);
   }
 
