@@ -91,9 +91,14 @@ class Goodscloud{
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
     // Get the response and close the channel.
-    $json = json_decode(curl_exec($ch));
+    $result = curl_exec($ch);
+    $status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    return $json;
+    if ($status_code >= 200 and $status_code < 300) {
+      return json_decode($result);
+    } else {
+      throw new Exception("API request failed with status code " . $status_code);
+    }
   }
 
   private function signed_request($method, $path, $params, $data=""){
