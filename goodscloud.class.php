@@ -35,18 +35,23 @@ class Goodscloud{
     }
   }
 
+  private static function serialize_params($params) {
+    ksort($params);
+    $str_params = "";
+    foreach ($params as $key => $value) {
+      $str_params .= "&$key=$value";
+    }
+    $str_params = trim($str_params, "&");
+    return $str_params;
+  }
+
   private static function http_request_curl($method, $host, $port, $path, $params, $data){
     $ch = curl_init();
-    $request_params = '';
-    foreach ($params as $k => $v) {
-      $request_params .= urlencode($k) .'='. urlencode($v) .'&';
-    }
-    $request_params = substr($request_params, 0, -1);
-
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         'Content-Type: application/json',
     ));
 
+    $request_params = Goodscloud::serialize_params($params);
     if ($request_params) {
       curl_setopt($ch, CURLOPT_URL, $host.$path."?".$request_params);
     } else {
@@ -92,12 +97,7 @@ class Goodscloud{
           "expires" => $expires
       );
     $params = array_merge($params, $auth_params);
-    ksort($params);
-    $str_params = "";
-    foreach ($params as $key => $value) {
-        $str_params.= "&$key=$value";
-    }
-    $str_params = trim($str_params, "&");
+    $str_params = $this::serialize_params($params);
     $sign_str = implode(array(
         $method,
         $path,
