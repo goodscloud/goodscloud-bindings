@@ -1,13 +1,13 @@
 <?php
 class Goodscloud{
-  private $host;
+  private $uri;
   private $email;
   private $password;
   private $session;
 
-  public function __construct($host, $email, $password){
+  public function __construct($uri, $email, $password){
     date_default_timezone_set('Europe/Berlin');
-    $this->host = $host;
+    $this->uri = $uri;
     $this->email = $email;
     $this->password = $password;
     $this->login();
@@ -15,7 +15,7 @@ class Goodscloud{
 
   private function login(){
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $this->host . '/session');
+    curl_setopt($ch, CURLOPT_URL, $this->uri . '/session');
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
       'GC-Email: ' . $this->email,
@@ -47,7 +47,7 @@ class Goodscloud{
     return join('&', $str_params);
   }
 
-  private static function http_request_curl($method, $host, $path, $params, $data){
+  private static function http_request_curl($method, $uri, $path, $params, $data){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
       'Content-Type: application/json',
@@ -55,9 +55,9 @@ class Goodscloud{
 
     $param_str = Goodscloud::serialize_params($params, true);
     if ($param_str) {
-      curl_setopt($ch, CURLOPT_URL, $host.$path."?".$param_str);
+      curl_setopt($ch, CURLOPT_URL, $uri.$path."?".$param_str);
     } else {
-      curl_setopt($ch, CURLOPT_URL, $host.$path);
+      curl_setopt($ch, CURLOPT_URL, $uri.$path);
     }
 
     if ($method == 'POST') {
@@ -112,7 +112,7 @@ class Goodscloud{
     $sign = trim(base64_encode(hash_hmac('sha1', utf8_encode($sign_str), $this->session->auth->app_secret, true)), '=');
     $params = array_merge($params, array('sign' => $sign));
 
-    return $this::http_request_curl($method, $this->host, $path, $params, $data);
+    return $this::http_request_curl($method, $this->uri, $path, $params, $data);
   }
 
   public function get($uri, $params=array()) {
