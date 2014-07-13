@@ -1,25 +1,21 @@
 <?php
 class Goodscloud{
   private $uri;
-  private $email;
-  private $password;
   private $session;
 
   public function __construct($uri, $email, $password){
     date_default_timezone_set('Europe/Berlin');
     $this->uri = $uri;
-    $this->email = $email;
-    $this->password = $password;
-    $this->login();
+    $this->login($email, $password);
   }
 
-  private function login(){
+  private function login($email, $password){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $this->uri . '/session');
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-      'GC-Email: ' . $this->email,
-      'GC-Password: ' . $this->password,
+      'GC-Email: ' . $email,
+      'GC-Password: ' . $password,
     ));
     // Set so curl_exec returns the result instead of outputting it.
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -27,7 +23,7 @@ class Goodscloud{
 
     $this->session = json_decode(curl_exec($ch));
     curl_close($ch);
-    if (!isset($this->session) || $this->session->email != $this->email){
+    if (!isset($this->session) || $this->session->email != $email){
       throw new Exception("API credentials incorrect", 1);
     }
   }
