@@ -93,21 +93,18 @@ class Goodscloud{
       'key'     => $this->session->auth->app_key,
       'token'   => $this->session->auth->app_token,
       'expires' => $expires
-      );
+    );
     $params = array_merge($params, $auth_params);
     $param_str = $this::serialize_params($params);
     $sign_str = implode(array(
-      $method,
-      $path,
-      md5($param_str),
-      md5($data),
-      $this->session->auth->app_token,
-      $expires
+      $method, $path, md5($param_str), md5($data),
+      $this->session->auth->app_token, $expires,
     ), "\n");
-
-    $sign = trim(base64_encode(hash_hmac('sha1', utf8_encode($sign_str), $this->session->auth->app_secret, true)), '=');
+    $sign = trim(
+      base64_encode(hash_hmac(
+        'sha1', utf8_encode($sign_str), $this->session->auth->app_secret, true
+      )), '=');
     $params = array_merge($params, array('sign' => $sign));
-
     return $this::http_request_curl($method, $this->uri, $path, $params, $data);
   }
 
