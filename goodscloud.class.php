@@ -43,7 +43,7 @@ class Goodscloud{
     return join('&', $str_params);
   }
 
-  private static function http_request_curl($method, $uri, $path, $params, $data){
+  private static function http($method, $uri, $path, $params, $data){
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
       'Content-Type: application/json',
@@ -105,7 +105,7 @@ class Goodscloud{
         'sha1', utf8_encode($sign_str), $this->session->auth->app_secret, true
       )), '=');
     $params = array_merge($params, array('sign' => $sign));
-    return $this::http_request_curl($method, $this->uri, $path, $params, $data);
+    return $this::http($method, $this->uri, $path, $params, $data);
   }
 
   public function get($uri, $params=array()) {
